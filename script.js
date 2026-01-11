@@ -13,12 +13,53 @@ const HEIGHT = 800;
 const resolution = 10;
 const COLS = WIDTH / resolution;
 const ROWS = HEIGHT / resolution;
+let UPDATE_PERIOD = 200;
+let TIMER_ID = 0;
 
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
 
 canvas.width = WIDTH;
 canvas.height = HEIGHT;
+
+let startButton = document.getElementById('start');
+let stopButton = document.getElementById('stop');
+let stepVal = document.getElementById('step');
+let nextGenButton = document.getElementById('nextGen');
+let rangeVal = document.getElementById('range');
+
+stepVal.innerText = rangeVal.value;
+
+startButton.addEventListener('click', () => {
+    startButton.disabled = true;
+    stopButton.disabled = false;
+    nextGenButton.disabled = true;
+    TIMER_ID = setInterval(update, UPDATE_PERIOD);
+})
+
+
+stopButton.addEventListener('click', () => {
+    startButton.disabled = false;
+    stopButton.disabled = true;
+    nextGenButton.disabled = false;
+    clearInterval(TIMER_ID);
+})
+
+
+rangeVal.addEventListener('input', () => {
+    clearInterval(TIMER_ID);
+    startButton.disabled = false;
+    stopButton.disabled = true;
+    UPDATE_PERIOD = rangeVal.value;
+    stepVal.innerText = rangeVal.value;
+    console.log(stepVal.innerText);
+})
+
+
+nextGenButton.addEventListener('click', () => {
+    update();
+})
+
 
 function buildGrid() {
     return new Array(COLS).fill(null)
@@ -28,12 +69,13 @@ function buildGrid() {
 
 let grid = buildGrid();
 
-setInterval(update, 200);
+update();
 
 function update() {
     grid = nextGen(grid);
     render(grid);
 }
+
 
 function nextGen(grid) {
     const nextGen = grid.map(arr => [...arr]);
@@ -74,13 +116,14 @@ function nextGen(grid) {
     return nextGen;
 }
 
+
 function render(grid) {
     for (let col = 0; col < grid.length; col++) {
         for (let row = 0; row < grid[col].length; row++) {
             const cell = grid[col][row];
             context.beginPath();
             context.rect(col * resolution, row * resolution, resolution, resolution);
-            context.fillStyle = cell ? 'red' : 'white';
+            context.fillStyle = cell ? 'green' : 'black';
             context.fill();
             context.stroke();
         }
